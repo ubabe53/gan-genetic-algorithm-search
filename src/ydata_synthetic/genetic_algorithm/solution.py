@@ -1,7 +1,7 @@
 from copy import deepcopy
 from numpy import random
-from encoding import encoder
-from synthesizers.regular.wgangp.model import WGAN_GP
+from ydata_synthetic.genetic_algorithm.encoding import encoder
+from ydata_synthetic.synthesizers import WGAN_GP
 
 class Solution:
     """
