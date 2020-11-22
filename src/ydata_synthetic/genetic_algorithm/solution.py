@@ -69,6 +69,9 @@ class Solution:
         weight_gp = self.decode[-1:][0]
         model = WGAN_GP(parameters,n_critic,weight_gp)
         self._fitness = model.train(data, train_args)
+    
+    def set_fitness(self,value):
+        self._fitness = value
 
     def clone(self):
         return deepcopy(self)
