@@ -139,7 +139,7 @@ class WGAN_GP(gan.Model):
         train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for epoch in tqdm.trange(epochs):
+            for epoch in tqdm.trange(epochs,bar_format='{desc}',position=0):
                 batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
                 cri_loss, ge_loss = self.train_step(batch_data)
 
