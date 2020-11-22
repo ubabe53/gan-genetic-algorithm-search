@@ -8,6 +8,10 @@ def roulette_wheel(solutions):
     :param solutions:
     :return:
     """
+    for x in solutions:
+        if x.fitness < 0:
+            x.set_fitness(0)
+
     max = sum([c.fitness for c in solutions])
     selection_probs = [(c.fitness / max) for c in solutions]
     indexes = npr.choice(len(solutions),2, p=selection_probs)
