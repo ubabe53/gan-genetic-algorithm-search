@@ -3,17 +3,16 @@ from os import path
 import numpy as np
 import pandas as pd
 import tqdm
+
 from functools import partial
 
-from ydata_synthetic.synthesizers import gan
+from  ydata_synthetic.synthesizers import gan
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
 import tensorflow.keras.backend as K
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
-
-from table_evaluator import TableEvaluator
 
 
 
@@ -133,39 +132,37 @@ class WGAN_GP(gan.Model):
         return cri_loss, ge_loss
 
     def train(self, data, train_arguments):
-        [cache_prefix, epochs, sample_interval] = train_arguments
+        [cache_prefix, iterations, sample_interval] = train_arguments
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
 
         with train_summary_writer.as_default():
-            for epoch in tqdm.trange(epochs,bar_format='{desc}',position=0):
+            for iteration in tqdm.trange(iterations, bar_format='{desc}', position=0):
                 batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
                 cri_loss, ge_loss = self.train_step(batch_data)
 
                 print(
-                    "Epoch: {} | disc_loss: {} | gen_loss: {}".format(
-                        epoch, cri_loss, ge_loss
+                    "Iteration: {} | disc_loss: {} | gen_loss: {}".format(
+                        iteration, cri_loss, ge_loss
                     ))
 
-                if epoch % sample_interval == 0:
+                if iteration % sample_interval == 0:
                     # Test here data generation step
                     # save model checkpoints
                     if path.exists('./cache') is False:
                         os.mkdir('./cache')
                     model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', epoch))
-                    self.critic.save_weights(model_checkpoint_base_name.format('critic', epoch))
+                    self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
+                    self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
 
-                if epoch == train_arguments[1]-1:
-                    noise = tf.random.normal([125, self.noise_dim], dtype=tf.dtypes.float32)
-                    fake = pd.DataFrame(self.generator(noise).numpy(), columns=data.columns)
-                    real = pd.DataFrame(self.get_data_batch(data, self.batch_size), columns=data.columns)
+                if iteration == train_arguments[1]-1:
+                    noise = tf.random.normal([data.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
+                    fake = self.generator(noise).numpy()
+                    real = self.get_data_batch(data,data.shape[0])
+                    fid = calculate_fid(real, fake)
 
-                    table_eval = TableEvaluator(real, fake)
-                    return table_eval.statistical_evaluation()
-
-
+            return fid
 
     def load(self, path):
         assert os.path.isdir(path) == True, \
@@ -173,6 +170,23 @@ class WGAN_GP(gan.Model):
         self.generator = Generator(self.batch_size)
         self.generator = self.generator.load_weights(path)
         return self.generator
+
+
+def calculate_fid(real,fake):
+    """
+    :param real: np.array with the real data
+    :param fake: np.array with the generated data
+    :return: the fid score
+    """
+    mux, muy = real.mean(axis=0), fake.mean(axis=0)
+    sigmax, sigmay = np.cov(real, rowvar=False), np.cov(fake, rowvar=False)
+
+    mudiff = np.sum((mux-muy)**2)
+    trace = np.trace(sigmax+sigmay - 2*(sigmax*sigmay)**0.5)
+    fid = mudiff + trace
+    return fid
+
+
 
 class Generator(tf.keras.Model):
     def __init__(self, batch_size):

@@ -1,6 +1,6 @@
 from ydata_synthetic.genetic_algorithm.population import Population
 from ydata_synthetic.genetic_algorithm.solution import Solution
-from ydata_synthetic.genetic_algorithm.ga_operators import singlepoint_crossover, uniform_mutation, elitism_replacement, roulette_wheel
+from ydata_synthetic.genetic_algorithm.ga_operators import singlepoint_crossover, adapted_mutation, elitism_replacement, roulette_wheel
 
 from time import time
 from copy import deepcopy
@@ -12,7 +12,7 @@ default_params = {
     "mutation_probability": 0.9,
     "selection_approach": roulette_wheel,
     "crossover_approach": singlepoint_crossover,
-    "mutation-approach": uniform_mutation,
+    "mutation-approach": adapted_mutation,
     "replacement-approach": elitism_replacement
 }
 
@@ -28,9 +28,9 @@ class GeneticAlgorithm:
 
     # Constructor
     # ---------------------------------------------------------------------------------------------
-    def __init__(self, dimension, data, train_args, params=default_params):
+    def __init__(self, dimension, data, train_args, params=default_params, limits={}):
         self._parse_params(params)
-
+        self._limits = limits
         self.dimension = dimension
         self.data = data
         self.train_args = train_args
@@ -75,20 +75,21 @@ class GeneticAlgorithm:
         self._update_top_5(0, self._population, time() - start_time)
         print(f'First population created. Time: {time()-start_time}')
 
+
         ## 2. Repeat n generations )(#1 loop ) ##==============
-        for generation in range(1, self._number_of_generations):
+        for generation in range(0, self._number_of_generations):
 
             new_population = Population(maximum_size=self._population_size, solution_list=[])
             start_time = time()
-            print(f'Generation # {generation}')
+            print(f'\n \n Generation # {generation+1} \n ')
 
             # 2.1. Repeat until generate the next generation (#2 loop )
             while new_population.has_space:
 
                 # 2.1.1. Selection
                 parent1, parent2 = select(solutions=self._population.solutions)
-                offspring1 = deepcopy(parent1)  # parent1.clone()
-                offspring2 = deepcopy(parent2)  # parent2.clone()
+                offspring1 = deepcopy(parent1)
+                offspring2 = deepcopy(parent2)
 
                 # 2.1.2. Apply crossover with probability
                 if self.apply_crossover:
@@ -96,18 +97,22 @@ class GeneticAlgorithm:
 
                 # 2.1.3. Apply Mutation with probability
                 if self.apply_mutation:
+                    print(offspring1.representation)
                     offspring1 = mutate(offspring1)
 
                 if self.apply_mutation:
+                    print(offspring2.representation)
                     offspring2 = mutate(offspring2)
 
                 # Add the offsprings in the new population (New Generation)
                 print(f'Calculating the fitness of a new individual. Generation: {generation}')
+                print(f'offspring parameters: {offspring1.representation}')
                 offspring1.calculate_fitness(self.dimension,self.data,self.train_args)
                 new_population.solutions.append(offspring1)
 
                 if new_population.has_space:
                     print(f'Calculating the fitness of a new individual. Generation: {generation}')
+                    print(f'offspring parameters: {offspring2.representation}')
                     offspring2.calculate_fitness(self.dimension,self.data,self.train_args)
                     new_population.solutions.append(offspring2)
 
@@ -163,7 +168,7 @@ class GeneticAlgorithm:
         if "cross_approach" in params:
             self._crossover_approach = params["cross_approach"]
 
-        self._mutation_approach = uniform_mutation
+        self._mutation_approach = adapted_mutation
         if "mutation_approach" in params:
             self._mutation_approach = params["mutation_approach"]
 
@@ -191,7 +196,7 @@ class GeneticAlgorithm:
 
         solution_list=[]
         for i in range(population_size):
-            solution = Solution()
+            solution = Solution(self._limits)
             solution.calculate_fitness(self.dimension,self.data,self.train_args)
             solution_list.append(solution)
 

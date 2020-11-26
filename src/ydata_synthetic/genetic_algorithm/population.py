@@ -76,7 +76,7 @@ class Population:
 
         for i in range(0, len(self._list)):
             for j in range(i, len(self._list)):
-                if self._list[i].fitness > self._list[j].fitness:
+                if self._list[i].fitness < self._list[j].fitness:
                     swap = self._list[j]
                     self._list[j] = self._list[i]
                     self._list[i] = swap
