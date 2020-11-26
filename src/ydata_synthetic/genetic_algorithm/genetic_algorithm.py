@@ -1,6 +1,6 @@
-from population import Population
-from solution import Solution
-from ga_operators import singlepoint_crossover, adapted_mutation, elitism_replacement, roulette_wheel
+from ydata_synthetic.genetic_algorithm.population import Population
+from ydata_synthetic.genetic_algorithm.solution import Solution
+from ydata_synthetic.genetic_algorithm.ga_operators import singlepoint_crossover, adapted_mutation, elitism_replacement, roulette_wheel
 
 from time import time
 from copy import deepcopy

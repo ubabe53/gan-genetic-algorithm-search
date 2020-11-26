@@ -6,7 +6,7 @@ import tqdm
 
 from functools import partial
 
-from synthesizers import gan
+from  ydata_synthetic.synthesizers import gan
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
