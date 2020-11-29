@@ -1,7 +1,7 @@
 from copy import deepcopy
 from numpy import random
 from ydata_synthetic.synthesizers import WGAN_GP
-from ydata_synthetic.ga_operators import limits_parser
+from ydata_synthetic.genetic_algorithm.ga_operators import limits_parser
 
 class Solution:
     """
