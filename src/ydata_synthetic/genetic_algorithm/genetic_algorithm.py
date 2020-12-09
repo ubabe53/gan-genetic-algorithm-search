@@ -1,6 +1,6 @@
-from ydata_synthetic.genetic_algorithm.population import Population
-from ydata_synthetic.genetic_algorithm.solution import Solution
-from ydata_synthetic.genetic_algorithm.ga_operators import singlepoint_crossover, adapted_mutation, elitism_replacement, roulette_wheel
+from population import Population
+from solution import Solution
+from ga_operators import singlepoint_crossover, adapted_mutation, elitism_replacement, roulette_wheel
 
 from time import time
 from copy import deepcopy
@@ -28,12 +28,13 @@ class GeneticAlgorithm:
 
     # Constructor
     # ---------------------------------------------------------------------------------------------
-    def __init__(self, dimension, data, train_args, params=default_params, limits={}):
+    def __init__(self, dimension, data, train_args, params=default_params,metric='kl', limits={}):
         self._parse_params(params)
         self._limits = limits
         self.dimension = dimension
         self.data = data
         self.train_args = train_args
+        self.metric = metric
 
         self._population = None
         self._fittest = None
@@ -63,8 +64,6 @@ class GeneticAlgorithm:
         mutate = self._mutation_approach
         replace = self._replacement_approach
 
-        #print(f' - Crossover Probability : {self._crossover_probability}')
-        #print(f' - Mutation  Probability : {self._mutation_probability}')
 
         self._generation = 0
 
@@ -196,7 +195,7 @@ class GeneticAlgorithm:
 
         solution_list=[]
         for i in range(population_size):
-            solution = Solution(self._limits)
+            solution = Solution(self._limits,self.metric)
             solution.calculate_fitness(self.dimension,self.data,self.train_args)
             solution_list.append(solution)
 

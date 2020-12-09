@@ -1,12 +1,9 @@
 import os
 from os import path
 import numpy as np
-import pandas as pd
 import tqdm
 
-from functools import partial
-
-from  ydata_synthetic.synthesizers import gan
+from synthesizers import gan
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
@@ -18,11 +15,12 @@ from tensorflow.keras.optimizers import Adam
 
 class WGAN_GP(gan.Model):
     
-    def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10):
+    def __init__(self, model_parameters, n_critic, gradient_penalty_weight=10, metric='kl'):
         # As recommended in WGAN paper - https://arxiv.org/abs/1701.07875
         # WGAN-GP - WGAN with Gradient Penalty
         self.n_critic = n_critic
         self.gradient_penalty_weight=gradient_penalty_weight
+        self.metric = metric
         super().__init__(model_parameters)
 
     def define_gan(self):
@@ -160,9 +158,12 @@ class WGAN_GP(gan.Model):
                     noise = tf.random.normal([data.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
                     fake = self.generator(noise).numpy()
                     real = self.get_data_batch(data,data.shape[0])
-                    fid = calculate_fid(real, fake)
+                    if self.metric == 'fid':
+                        score = calculate_fid(real, fake)
+                    elif self.metric == 'kl':
+                        score = calculate_kl(real, fake)
 
-            return fid
+            return score
 
     def load(self, path):
         assert os.path.isdir(path) == True, \
@@ -186,6 +187,9 @@ def calculate_fid(real,fake):
     fid = mudiff + trace
     return fid
 
+def calculate_kl(real,fake):
+    kl = tf.keras.losses.KLDivergence(reduction="auto", name="kl_divergence")
+    return kl(real,fake).numpy()
 
 
 class Generator(tf.keras.Model):

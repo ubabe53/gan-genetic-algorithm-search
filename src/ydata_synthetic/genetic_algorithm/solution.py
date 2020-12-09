@@ -1,7 +1,6 @@
-from copy import deepcopy
 from numpy import random
-from ydata_synthetic.synthesizers import WGAN_GP
-from ydata_synthetic.genetic_algorithm.ga_operators import limits_parser
+from synthesizers.regular.wgangp.model import WGAN_GP
+from ga_operators import limits_parser
 
 class Solution:
     """
@@ -10,14 +9,12 @@ class Solution:
 
     # Constructor
     # ----------------------------------------------------------------------------------------------
-    def __init__(self,limits={}):
+    def __init__(self,limits={},metric='kl'):
         self._representation = None
         self._fitness = None
         self._is_fitness_calculated = False
         self._limits = limits_parser(limits)
-
-        #self._representation = self.representation
-
+        self._metric = metric
 
     # representation
     # ----------------------------------------------------------------------------------------------
@@ -66,7 +63,7 @@ class Solution:
         parameters = parameters + dimension
         n_critic = self.representation[-2:-1][0]
         weight_gp = self.representation[-1:][0]
-        model = WGAN_GP(parameters,n_critic,weight_gp)
+        model = WGAN_GP(parameters, n_critic, weight_gp, metric=self._metric)
         self._fitness = model.train(data, train_args)
 
     def set_fitness(self,value):
