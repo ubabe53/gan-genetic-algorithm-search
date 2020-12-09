@@ -1,6 +1,6 @@
 from numpy import random
-from synthesizers.regular.wgangp.model import WGAN_GP
-from ga_operators import limits_parser
+from ydata_synthetic.synthesizers import WGAN_GP
+from ydata_synthetic.genetic_algorithm.ga_operators import limits_parser
 
 class Solution:
     """

@@ -3,7 +3,7 @@ from os import path
 import numpy as np
 import tqdm
 
-from synthesizers import gan
+from ydata_synthetic.synthesizers import gan
 
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Dropout
