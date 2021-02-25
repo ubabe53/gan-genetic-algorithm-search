@@ -134,7 +134,7 @@ class WGAN_GP(gan.Model):
 
         # Create a summary file
         train_summary_writer = tf.summary.create_file_writer(path.join('..\wgan_gp_test', 'summaries', 'train'))
-
+        score = []
         with train_summary_writer.as_default():
             for iteration in tqdm.trange(iterations):
                 batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
@@ -149,16 +149,17 @@ class WGAN_GP(gan.Model):
                     self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
                     self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
 
-                if iteration == train_arguments[1]-1:
+
+                if (iterations - iteration) <= 20:
                     noise = tf.random.normal([data.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
                     fake = self.generator(noise).numpy()
-                    real = self.get_data_batch(data,data.shape[0])
+                    real = self.get_data_batch(data, data.shape[0])
                     if self.metric == 'fid':
-                        score = calculate_fid(real, fake)
+                        score.append(calculate_fid(real, fake))
                     elif self.metric == 'kl':
-                        score = calculate_kl(real, fake)
+                        score.append(calculate_kl(real, fake))
 
-            return score
+            return np.average(score)
 
     def load(self, path):
         assert os.path.isdir(path) == True, \
