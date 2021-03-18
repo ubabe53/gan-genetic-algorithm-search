@@ -9,7 +9,7 @@ from random import random
 default_params = {
     "population_size": 20,
     "cross_probability": 0.5,
-    "mutation_probability": 0.9,
+    "mutation_probability": 0.1,
     "selection_approach": roulette_wheel,
     "crossover_approach": singlepoint_crossover,
     "mutation-approach": adapted_mutation,
@@ -104,13 +104,13 @@ class GeneticAlgorithm:
                     offspring2 = mutate(offspring2)
 
                 # Add the offsprings in the new population (New Generation)
-                print(f'Calculating the fitness of a new individual. Generation: {generation}')
+                print(f'Calculating the fitness of a new individual. Generation: {generation+1}')
                 print(f'offspring parameters: {offspring1.representation}')
                 offspring1.calculate_fitness(self.dimension,self.data,self.train_args)
                 new_population.solutions.append(offspring1)
 
                 if new_population.has_space:
-                    print(f'Calculating the fitness of a new individual. Generation: {generation}')
+                    print(f'Calculating the fitness of a new individual. Generation: {generation+1}')
                     print(f'offspring parameters: {offspring2.representation}')
                     offspring2.calculate_fitness(self.dimension,self.data,self.train_args)
                     new_population.solutions.append(offspring2)

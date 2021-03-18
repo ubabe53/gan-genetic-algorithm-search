@@ -137,27 +137,29 @@ class WGAN_GP(gan.Model):
         score = []
         with train_summary_writer.as_default():
             for iteration in tqdm.trange(iterations,leave=None):
-                batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
-                self.train_step(batch_data)
+                gpu = tf.config.experimental.list_logical_devices('GPU')
+                with tf.device(gpu[0].name):
+                    batch_data = self.get_data_batch(data, self.batch_size).astype(np.float32)
+                    self.train_step(batch_data)
 
-                if iteration % sample_interval == 0:
-                    # Test here data generation step
-                    # save model checkpoints
-                    if path.exists('./cache') is False:
-                        os.mkdir('./cache')
-                    model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
-                    self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
-                    self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
+                    if iteration % sample_interval == 0:
+                        # Test here data generation step
+                        # save model checkpoints
+                        if path.exists('./cache') is False:
+                            os.mkdir('./cache')
+                        model_checkpoint_base_name = './cache/' + cache_prefix + '_{}_model_weights_step_{}.h5'
+                        self.generator.save_weights(model_checkpoint_base_name.format('generator', iteration))
+                        self.critic.save_weights(model_checkpoint_base_name.format('critic', iteration))
 
 
-                if (iterations - iteration) <= 20:
-                    noise = tf.random.normal([data.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
-                    fake = self.generator(noise).numpy()
-                    real = self.get_data_batch(data, data.shape[0])
-                    if self.metric == 'fid':
-                        score.append(calculate_fid(real, fake))
-                    elif self.metric == 'kl':
-                        score.append(calculate_kl(real, fake))
+                    if (iterations - iteration) <= 20:
+                        noise = tf.random.normal([batch_data.shape[0], self.noise_dim], dtype=tf.dtypes.float32)
+                        fake = self.generator(noise).numpy()
+                        real = self.get_data_batch(data, batch_data.shape[0])
+                        if self.metric == 'fid':
+                            score.append(calculate_fid(real, fake))
+                        elif self.metric == 'kl':
+                            score.append(calculate_kl(real, fake))
 
             return np.average(score)
 

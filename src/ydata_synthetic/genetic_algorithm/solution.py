@@ -60,6 +60,7 @@ class Solution:
     def calculate_fitness(self, dimension, data, train_args):
         #self._fitness = int(random.randint(0,3000,1))
         parameters = self.representation[:-2]
+        dimension[0] = self.representation[0]
         parameters = parameters + dimension
         n_critic = self.representation[-2:-1][0]
         weight_gp = self.representation[-1:][0]
