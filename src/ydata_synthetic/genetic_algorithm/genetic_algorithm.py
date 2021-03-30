@@ -28,15 +28,16 @@ class GeneticAlgorithm:
 
     # Constructor
     # ---------------------------------------------------------------------------------------------
-    def __init__(self, dimension, data, train_args, params=default_params,metric='kl', limits={}):
+    def __init__(self, dimension, data, train_args, params=default_params,metric='kl', limits={}, population=None, saveit=True):
         self._parse_params(params)
         self._limits = limits
         self.dimension = dimension
         self.data = data
         self.train_args = train_args
         self.metric = metric
+        self._saveit = saveit
 
-        self._population = None
+        self._population = population
         self._fittest = None
 
         self._top_5 = []
@@ -69,11 +70,12 @@ class GeneticAlgorithm:
 
         # 1. Initial population
         start_time = time()
-        print('Creating the first population.')
-        self._population = Population(self._population_size, self.inizialize_solutions(self._population_size))
-        self._update_top_5(0, self._population, time() - start_time)
-        print(f'First population created. Time: {time()-start_time}')
-
+        if self._population==None:
+            print('Creating the first population.')
+            self._population = Population(self._population_size, self.inizialize_solutions(self._population_size))
+            self._update_top_5(0, self._population, time() - start_time)
+            print(f'First population created. Time: {time()-start_time}')
+            self._population.save('./pops/initial_pop.pkl')
 
         ## 2. Repeat n generations )(#1 loop ) ##==============
         for generation in range(0, self._number_of_generations):
@@ -121,6 +123,8 @@ class GeneticAlgorithm:
             self._population.sort()
             self._population = replace(self._population, new_population)
             fittest = self._population.fittest
+            if self._saveit ==True:
+                self._population.save(f'pops/pop_number_{generation+1}.pkl')
             print(f'The best ones have been replaced. Fitness of the fittest: {fittest.fitness}')
             self._update_top_5(generation, self._population, time() - start_time)
 

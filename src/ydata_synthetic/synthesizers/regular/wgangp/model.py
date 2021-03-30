@@ -183,6 +183,8 @@ def calculate_fid(real,fake):
     mudiff = np.sum((mux-muy)**2)
     trace = np.trace(sigmax+sigmay - 2*(sigmax*sigmay)**0.5)
     fid = mudiff + trace
+    if np.isnan(fid):
+        return 1000
     return fid
 
 def calculate_kl(real,fake):
