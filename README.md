@@ -1,39 +1,20 @@
-<p align="center"><img width="200" src="https://ydata-demos.s3.eu-central-1.amazonaws.com/Synthetic+Data_2.png" alt="Synthetic Data Logo"></p>
-
-Join us on [![slack](https://img.shields.io/badge/slack-brightgreen.svg?logo=slack)](http://slack.ydata.ai/)
-
 # What is Synthetic Data?
 Synthetic data is artificially generated data that is not collected from real world events. It replicates the statistical components of real data without containing any identifiable information, ensuring individuals' privacy.
 
-# Why Synthetic Data?
-Synthetic data can be used for many applications:
-- Privacy
-- Remove bias
-- Balance datasets
-- Augment datasets
+# What is a Genetic Algorithm?
+Genetic Algorithms are algorithms that mimic natural selection and evolution and it is widely applied for optimization problems. The most basic version starts with a randomly generated population of candidate solutions (chromosomes), and through the use of genetic operators such as selection, crossover, and mutation, it evolves these individuals towards better solutions over time, based on a fitness function that measures their quality. 
 
-# ydata-synthetic
-This repository contains material related with Generative Adversarial Networks for synthetic data generation, in particular regular tabular data and time-series. 
-It consists in a set of different GANs architectures developed ussing Tensorflow 2.0. An example Jupyter Notebook is included, to show how to use the different architectures.
-
-# Quickstart
+### Structure 
+```bash
+.
+├── src
+│   └── ydata_synthetic
+│       ├── genetic_algorithm
+│       ├── preprocessing
+│       └── synthesizers
+└── examples
 ```
-pip install ydata-synthetic
-```
-
-## Examples
-Here you can find usage examples of the package and models to synthesize tabular data.
-
-**Credit Fraud dataset** 
-
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ydataai/ydata-synthetic/blob/master/examples/gan_example.ipynb)
-
-# Project Resources
-- Synthetic GitHub: https://github.com/ydataai/ydata-synthetic
-- Synthetic Data Community Slack: [click here to join](http://slack.ydata.ai/)
 
 ### In this repo you can find the following GAN architectures:
-- [GAN](https://arxiv.org/abs/1406.2661)
 - [CGAN (Conditional GAN)](https://arxiv.org/abs/1411.1784)
-- [WGAN (Wasserstein GAN)](https://arxiv.org/abs/1701.07875)
 - [WGAN-GP (Wassertein GAN with Gradient Penalty)](https://arxiv.org/abs/1704.00028)
